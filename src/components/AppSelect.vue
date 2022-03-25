@@ -1,6 +1,6 @@
 <template>
-  <div class="select" v-out="closeList">
-    <div class="select__selected" @click.prevent="toggleList">
+  <div class="select" @click="toggleList">
+    <div class="select__selected">
       {{ currentOption }}
     </div>
     <div
@@ -45,10 +45,17 @@ export default {
   methods: {
     changeCurrent(option) {
       this.currentOption = option
-      this.isOpen = false
     },
     toggleList() {
-      this.isOpen = !this.isOpen
+      const close = () => {
+        if (this.isOpen) {
+          document.body.removeEventListener('click', close)
+        }
+        this.isOpen = !this.isOpen
+      }
+      if (!this.isOpen) {
+        document.body.addEventListener('click', close)
+      }
     },
     closeList() {
       if (this.isOpen) {
@@ -62,17 +69,6 @@ export default {
         this.$emit('update:modelValue', val)
       },
       immediate: true,
-    },
-  },
-  directives: {
-    out: {
-      mounted(el, binding) {
-        el.addEventListener('click', e => e.stopPropagation())
-        document.body.addEventListener('click', binding.value)
-      },
-      unmounted(el, binding) {
-        document.body.removeEventListener('click', binding.value)
-      },
     },
   },
 }
@@ -121,11 +117,5 @@ export default {
       background: transparentize($main-color, 0.1);
     }
   }
-}
-
-.open {
-  transform: scale(1) !important;
-  opacity: 1 !important;
-  z-index: 1 !important;
 }
 </style>

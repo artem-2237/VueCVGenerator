@@ -1,7 +1,7 @@
 <template>
   <textarea
       rows="1"
-      ref="input"
+      ref="textarea"
       :value="modelValue"
       :placeholder="placeholder"
       @input="onInput"
@@ -36,14 +36,14 @@ export default {
       e.target.style.height = e.target.scrollHeight + 2 + 'px'
       this.$emit('update:modelValue', e.target.value)
     },
-    onEnter(e) {
+    onEnter() {
       this.$emit('onEnter')
     }
   },
   watch: {
     inputValue(val) {
       if (!val.length) {
-        this.$refs.input.style.height = '24px'
+        this.$refs.textarea.style.height = '24px'
       }
     }
   }

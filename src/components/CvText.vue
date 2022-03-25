@@ -20,6 +20,11 @@ export default {
 <style scoped>
 div {
   position: relative;
-  margin: 5px 0;
+  margin: 10px 0;
+}
+@media (max-width: 640px) {
+  div {
+    padding-right: 50px;
+  }
 }
 </style>

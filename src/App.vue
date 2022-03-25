@@ -11,6 +11,7 @@
             :placeholder="curBlockType === 'Фото' ? 'Введите url картинки' : 'Введите текст блока'"
             @onEnter="addBlock"
         />
+        <span class="error" ref="error" v-show="isEmpty">Поле не должно быть пустым</span>
       </div>
       <div class="form-add__button-wrapper">
         <AppButton type="submit" text="Добавить"/>
@@ -19,10 +20,13 @@
     <div class="form-cv card">
       <h2 class="form-cv__title title" v-if="!blocks.length">Ваше резюме</h2>
       <CvItem
-          v-for="item in blocks"
+          v-for="(item, index) in blocks"
           :key="item.id"
           :item="item"
+          :index="index"
           @delete="deleteBlock($event)"
+          @toDown="itemDown($event)"
+          @toUp="itemUp($event)"
       />
     </div>
   </div>
@@ -42,17 +46,16 @@ export default {
     AppSelect,
     CvItem,
   },
+  mounted() {
+    this.blocks = JSON.parse(localStorage.getItem('blocks')) || []
+  },
   data() {
     return {
       types: ['Заголовок', 'Подзаголовок', 'Фото', 'Текст'],
       curContent: '',
       curBlockType: '',
-      blocks: [
-        {id: 1, component: 'CvTitle', content: 'Заголовок'},
-        {id: 2, component: 'CvSubtitle', content: 'Подзаголовок'},
-        {id: 3, component: 'CvPhoto', content: 'https://www.pavilionweb.com/wp-content/uploads/2017/03/man-300x300.png'},
-        {id: 4, component: 'CvText', content: 'Какой-то текст'},
-      ],
+      blocks: [],
+      isEmpty: false,
     }
   },
   computed: {
@@ -78,17 +81,51 @@ export default {
   },
   methods: {
     addBlock() {
-      this.blocks.push({
-        id: Math.random().toString(32).substr(2, 6),
-        component: this.curBlockComponent,
-        content: this.curContent,
-      })
-      this.curContent = ''
+      if (this.curContent.length) {
+        this.isEmpty = false
+        this.blocks.push({
+          id: Math.random().toString(32).substring(2, 6),
+          component: this.curBlockComponent,
+          content: this.curContent,
+        })
+        localStorage.setItem('blocks', JSON.stringify(this.blocks))
+        this.curContent = ''
+      } else {
+        this.isEmpty = true
+        this.$refs.error.style.animation = '1s error'
+        setTimeout(() => {
+          this.$refs.error.style.animation = 'none'
+        }, 500)
+      }
     },
     deleteBlock(id) {
       this.blocks = this.blocks.filter(el => el.id !== id)
+      localStorage.setItem('blocks', JSON.stringify(this.blocks))
     },
-  },
+    itemDown(index) {
+      if (index !== this.blocks.length - 1) {
+        let item = this.blocks.splice(index, 1)
+        const arr = [...this.blocks]
+        this.blocks = [
+          ...arr.slice(0, index + 1),
+          ...item,
+          ...arr.slice(index + 1)
+        ]
+      }
+      localStorage.setItem('blocks', JSON.stringify(this.blocks))
+
+    },
+    itemUp(index) {
+      let item = this.blocks.splice(index, 1)
+      const arr = [...this.blocks]
+      this.blocks = [
+        ...arr.slice(0, index - 1),
+        ...item,
+        ...arr.slice(index - 1)
+      ]
+      localStorage.setItem('blocks', JSON.stringify(this.blocks))
+    }
+  }
 }
 </script>
 
@@ -142,6 +179,12 @@ img {
   margin-bottom: 30px;
 }
 
+.error {
+  font-size: 14px;
+  color: $main-color;
+  animation: .7s error;
+}
+
 .form-add {
   width: 32%;
   &__select-wrapper {
@@ -170,14 +213,20 @@ img {
   right: 0;
 }
 
-@keyframes close {
+.open {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+}
+
+@keyframes error {
   0% {
-    transform: scale(1);
-    opacity: 1;
+    background: $main-color;
+    color: #fff;
   }
   100% {
-    transform: scale(0.5);
-    opacity: 0;
+    background: transparent;
+    color: $main-color;
   }
 }
 
@@ -189,6 +238,9 @@ img {
   .form-add {
     width: 100%;
     margin-bottom: 20px;
+    &__select-wrapper {
+      display: block;
+    }
   }
   .form-cv {
     width: 100%;

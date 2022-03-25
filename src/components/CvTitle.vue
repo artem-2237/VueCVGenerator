@@ -27,4 +27,9 @@ h2 {
   padding: 0 3px 0 2px;
   border-bottom: 2px solid $main-color;
 }
+@media (max-width: 640px) {
+  div {
+    padding-right: 50px;
+  }
+}
 </style>
