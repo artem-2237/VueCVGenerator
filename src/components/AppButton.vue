@@ -35,7 +35,7 @@ button {
   transition: .3s all;
 
   &:hover {
-    box-shadow: 0 0 15px $main-color;
+    box-shadow: $button-shadow;
   }
 }
 </style>

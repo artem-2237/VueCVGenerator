@@ -7,9 +7,15 @@
           <AppSelect :options="types" v-model="curBlockType"/>
         </div>
         <AppTextArea
+            v-if="curBlockType !== 'Фото'"
             v-model="curContent"
-            :placeholder="curBlockType === 'Фото' ? 'Введите url картинки' : 'Введите текст блока'"
+            placeholder="Введите текст блока"
             @onEnter="addBlock"
+        />
+        <AppFileInput
+            v-else
+            :file-name="fileName"
+            @onChange="onFileSelected($event)"
         />
         <span class="error" ref="error" v-show="isEmpty">Поле не должно быть пустым</span>
       </div>
@@ -18,16 +24,24 @@
       </div>
     </form>
     <div class="form-cv card">
-      <h2 class="form-cv__title title" v-if="!blocks.length">Ваше резюме</h2>
-      <CvItem
-          v-for="(item, index) in blocks"
-          :key="item.id"
-          :item="item"
-          :index="index"
-          @delete="deleteBlock($event)"
-          @toDown="itemDown($event)"
-          @toUp="itemUp($event)"
-      />
+      <div ref="cv">
+        <h2 class="form-cv__title title" v-if="!blocks.length">Ваше резюме</h2>
+        <CvItem
+            v-else
+            v-for="(item, index) in blocks"
+            :key="item.id"
+            :item="item"
+            :index="index"
+            @delete="deleteBlock($event)"
+            @toDown="itemDown($event)"
+            @toUp="itemUp($event)"
+        />
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="download-button__wrapper">
+      <AppButton text="Скачать PDF" @onClick="downloadPDF" />
     </div>
   </div>
 </template>
@@ -37,6 +51,9 @@ import AppTextArea from '@/components/AppTextArea'
 import AppButton from '@/components/AppButton'
 import AppSelect from '@/components/AppSelect'
 import CvItem from '@/components/CvItem'
+import AppFileInput from '@/components/AppFileInput'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
 
 export default {
   name: 'App',
@@ -45,6 +62,7 @@ export default {
     AppButton,
     AppSelect,
     CvItem,
+    AppFileInput,
   },
   mounted() {
     this.blocks = JSON.parse(localStorage.getItem('blocks')) || []
@@ -53,6 +71,7 @@ export default {
     return {
       types: ['Заголовок', 'Подзаголовок', 'Фото', 'Текст'],
       curContent: '',
+      fileName: '',
       curBlockType: '',
       blocks: [],
       isEmpty: false,
@@ -90,6 +109,7 @@ export default {
         })
         localStorage.setItem('blocks', JSON.stringify(this.blocks))
         this.curContent = ''
+        this.fileName = ''
       } else {
         this.isEmpty = true
         this.$refs.error.style.animation = '1s error'
@@ -124,67 +144,38 @@ export default {
         ...arr.slice(index - 1)
       ]
       localStorage.setItem('blocks', JSON.stringify(this.blocks))
-    }
+    },
+    downloadPDF() {
+      const doc = new jsPDF('p', 'px', 'a4')
+      const cv = this.$refs.cv
+      const options = {
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        scale: 2,
+        windowWidth: 1920,
+      }
+      html2canvas(cv, options).then(canvas => {
+        const img = canvas.toDataURL('image/png')
+        doc.addImage(img, 'PNG', 20, 20, canvas.width * 0.35, canvas.height * 0.35)
+        doc.save('Cv.pdf')
+      })
+    },
+    onFileSelected(e) {
+      const file = e.target.files[0]
+      this.fileName = file.name
+      const reader = new FileReader()
+
+      reader.readAsDataURL(file)
+
+      reader.onload = () => {
+        this.curContent = reader.result
+      }
+    },
   }
 }
 </script>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&display=swap');
-
-html {
-  box-sizing: border-box;
-}
-
-*, *:after, *:before {
-  box-sizing: inherit;
-  margin: 0;
-  padding: 0;
-  outline: none;
-  text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-body {
-  width: 100vw;
-  height: 100vh;
-  background: $bg-color;
-  color: $text-color;
-  font-family: 'Exo 2', sans-serif;
-}
-
-img {
-  max-width: 100%;
-}
-
-.container {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 1000px;
-  margin: auto;
-  padding-top: 50px;
-}
-
-.card {
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 2px 3px 15px #959595;
-}
-
-.title {
-  text-transform: uppercase;
-  margin-bottom: 30px;
-}
-
-.error {
-  font-size: 14px;
-  color: $main-color;
-  animation: .7s error;
-}
-
 .form-add {
   width: 32%;
   &__select-wrapper {
@@ -212,22 +203,11 @@ img {
   top: 30px;
   right: 0;
 }
-
-.open {
-  transform: scale(1) !important;
-  opacity: 1 !important;
-  z-index: 1 !important;
-}
-
-@keyframes error {
-  0% {
-    background: $main-color;
-    color: #fff;
-  }
-  100% {
-    background: transparent;
-    color: $main-color;
-  }
+.download-button__wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 50px;
 }
 
 @media (max-width: 1040px) {

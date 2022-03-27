@@ -37,11 +37,6 @@ export default {
       isOpen: false,
     }
   },
-  computed: {
-    open() {
-      return
-    },
-  },
   methods: {
     changeCurrent(option) {
       this.currentOption = option

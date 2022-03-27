@@ -21,6 +21,7 @@ export default {
 div {
   position: relative;
   margin: 10px 0;
+  padding-right: 40px;
 }
 @media (max-width: 640px) {
   div {

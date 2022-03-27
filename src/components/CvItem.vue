@@ -1,6 +1,12 @@
 <template>
   <component :is="item.component" :content="item.content">
-    <button class="close" @click="toggleContextMenu">&#9679;&#9679;&#9679;</button>
+    <button
+        data-html2canvas-ignore
+        class="close"
+        @click="toggleContextMenu"
+    >
+      &#9679;&#9679;&#9679;
+    </button>
     <div class="context-menu" :class="{open: contextOpen}">
       <span @click="deleteItem(item.id)">Удалить</span>
       <span @click="index ? $emit('toUp', index) : false">Вверх</span>

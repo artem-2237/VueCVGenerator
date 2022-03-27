@@ -1,6 +1,6 @@
 <template>
   <div>
-    <img :src="content" alt="">
+    <div class="img" :style="{backgroundImage: `url(${content})`}"></div>
     <slot />
   </div>
 </template>
@@ -17,9 +17,20 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 div {
   position: relative;
   margin: 30px 0;
+  padding-right: 40px;
+}
+
+.img {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
 }
 </style>

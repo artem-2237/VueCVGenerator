@@ -21,6 +21,7 @@ export default {
 div {
   position: relative;
   margin: 30px 0;
+  padding-right: 40px;
 }
 h2 {
   display: inline-block;

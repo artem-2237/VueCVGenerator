@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&display=swap');
+@import "_variables.scss";
+html {
+  box-sizing: border-box;
+}
+
+*, *:after, *:before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  background: $bg-color;
+  color: $text-color;
+  font-family: 'Exo 2', sans-serif;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+}
+
+.container {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 1000px;
+  margin: auto;
+  padding-top: 50px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 2px 3px 15px #959595;
+}
+
+.title {
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+.open {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+}
+
+.error {
+  font-size: 14px;
+  color: $main-color;
+  animation: .7s error;
+}
+
+@keyframes error {
+  0% {
+    background: $main-color;
+    color: #fff;
+  }
+  100% {
+    background: transparent;
+    color: $main-color;
+  }
+}

@@ -21,5 +21,6 @@ export default {
 div {
   position: relative;
   margin: 15px 0;
+  padding-right: 40px;
 }
 </style>
